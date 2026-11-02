@@ -14,7 +14,7 @@ function doPost(e){
     const row=sh.getLastRow()+1;
     sh.getRange(row,1).setValue(new Date(p.date+'T00:00:00'));
     sh.getRange(row,2).setFormula('=IF(A'+row+'="","",DATE(YEAR(A'+row+'),MONTH(A'+row+'),1))');
-    sh.getRange(row,3,1,8).setValues([[p.type,p.category,p.note||'',p.account||'Kas',Number(p.amount),p.needWant||'Kebutuhan',p.recurring||'Tidak',p.extraNote||'']]);
+    sh.getRange(row,3,1,8).setValues([[({'Pemasukan':'Income','Pengeluaran':'Expense','Investasi':'Investment','Transfer':'Transfer','Pembayaran utang':'Debt Payment'}[p.type]||p.type),p.category,p.note||'',p.account||'Rekening Utama',Number(p.amount),p.needWant||'Kebutuhan',p.recurring||'Tidak',p.extraNote||'']]);
     return json_({ok:true,row});
   }catch(err){return json_({ok:false,error:String(err)});}
 }
