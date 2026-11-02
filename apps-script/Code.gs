@@ -5,7 +5,7 @@ const TOKEN = 'REPLACE_WITH_A_LONG_RANDOM_SECRET';
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
-function doPost(e) {
+function doGet() { return ContentService.createTextOutput('Arus transaction endpoint is ready. Submit transactions using POST from the PWA.'); }\nfunction doPost(e) {
   try {
     const p = JSON.parse(e.postData.contents || '{}');
     if (p.token !== TOKEN) return json_({ok:false,error:'Unauthorized'});
