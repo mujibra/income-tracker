@@ -1,5 +1,6 @@
 const SPREADSHEET_ID = '1ubl1xEHiuoCG_MAIn2FYAG16NmQE1QQ_l_0bLM6Y9Ck';
 const TAB_NAME = 'ArusTransactions';
+// Replace with a long random secret. Never commit a real secret to a public repo.
 const TOKEN = 'REPLACE_WITH_A_LONG_RANDOM_SECRET';
 
 function sheet_() {
@@ -9,8 +10,10 @@ function sheet_() {
   if (sh.getLastRow() === 0) sh.appendRow(['id','date','type','category','note','amount','updatedAt']);
   return sh;
 }
-function json_(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+function json_(obj, callback) {
+  const payload = JSON.stringify(obj).replace(/</g, '\\u003c');
+  const output = callback ? callback + '(' + payload + ');' : payload;
+  return ContentService.createTextOutput(output).setMimeType(callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
 }
 function doGet(e) {
   if (e.parameter.token !== TOKEN) return json_({ok:false,error:'Unauthorized'}, e.parameter.callback);
@@ -25,9 +28,7 @@ function doPost(e) {
   const payload = JSON.parse(e.postData.contents || '{}');
   if (payload.token !== TOKEN) return json_({ok:false,error:'Unauthorized'});
   if (!Array.isArray(payload.transactions)) return json_({ok:false,error:'transactions must be an array'});
-  const sh = sheet_();
-  const rows = [['id','date','type','category','note','amount','updatedAt']];
-  const now = new Date();
+  const sh = sheet_(), rows = [['id','date','type','category','note','amount','updatedAt']], now = new Date();
   payload.transactions.forEach(t=>rows.push([String(t.id),String(t.date),String(t.type),String(t.category),String(t.note||''),Number(t.amount||0),now]));
   sh.clearContents();
   sh.getRange(1,1,rows.length,rows[0].length).setValues(rows);
