@@ -13,13 +13,13 @@ function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 function doGet(e) {
-  if (e.parameter.token !== TOKEN) return json_({ok:false,error:'Unauthorized'});
+  if (e.parameter.token !== TOKEN) return json_({ok:false,error:'Unauthorized'}, e.parameter.callback);
   const sh = sheet_(), rows = sh.getDataRange().getValues();
   const transactions = rows.slice(1).filter(r=>r[0]).map(r=>({
     id:String(r[0]),date:r[1] instanceof Date?Utilities.formatDate(r[1],Session.getScriptTimeZone(),'yyyy-MM-dd'):String(r[1]),
     type:String(r[2]),category:String(r[3]),note:String(r[4]||''),amount:Number(r[5]||0)
   }));
-  return json_({ok:true,transactions});
+  return json_({ok:true,transactions}, e.parameter.callback);
 }
 function doPost(e) {
   const payload = JSON.parse(e.postData.contents || '{}');
